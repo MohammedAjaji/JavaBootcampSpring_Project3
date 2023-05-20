@@ -3,6 +3,7 @@ package com.example.spring_project3.Controller;
 import com.example.spring_project3.ApiResponse.ApiResponse;
 import com.example.spring_project3.Model.Merchant;
 import com.example.spring_project3.Model.Product;
+import com.example.spring_project3.Service.CategoryService;
 import com.example.spring_project3.Service.MerchantService;
 import com.example.spring_project3.Service.ProductService;
 import jakarta.validation.Valid;
@@ -19,6 +20,7 @@ import java.util.ArrayList;
 public class ProductController {
 
     private final ProductService productService;
+    private final CategoryService categoryService;
 
     @GetMapping("/get")
     public ResponseEntity getProduct(){
@@ -33,9 +35,11 @@ public class ProductController {
             String message = errors.getFieldError().getDefaultMessage();
             return ResponseEntity.status(400).body(new ApiResponse(message));
         }
-        productService.addProduct(product);
-
-        return ResponseEntity.status(200).body("Product Added!");
+       if (checkCategory(product.getCategoryID())){
+           productService.addProduct(product);
+           return ResponseEntity.status(200).body("Product Added!");
+       }
+        return ResponseEntity.status(400).body(new ApiResponse("Sorry there is not any category with this id"));
     }
 
     @PutMapping("/update/{id}")
@@ -61,5 +65,14 @@ public class ProductController {
         }
         return ResponseEntity.status(400).body("wrong id");
 
+    }
+
+    public boolean checkCategory(int categoryID){
+        for (int i = 0; i < categoryService.getCategories().size(); i++) {
+            if (categoryService.getCategories().get(i).getId() == categoryID){
+                return true;
+            }
+        }
+        return false;
     }
 }

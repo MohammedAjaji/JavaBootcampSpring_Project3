@@ -10,9 +10,7 @@ import lombok.Data;
 public class Category {
 
     @NotNull(message = " ID cannot be empty")
-    @Min(value = 3, message = "ID size should be 3 or more ")
-//    @Pattern(regexp = "\\d{3,}", message = "ID size should be 3 or more ")
-//    @Size(min = 3 , message = "ID size should be 3 or more ")
+    @Min(value = 100, message = "ID size should be 3 or more ")
     private int id;
 
     @NotEmpty(message = " name cannot be empty")

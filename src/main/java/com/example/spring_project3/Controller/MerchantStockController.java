@@ -3,8 +3,9 @@ package com.example.spring_project3.Controller;
 
 import com.example.spring_project3.ApiResponse.ApiResponse;
 import com.example.spring_project3.Model.MerchantStock;
-import com.example.spring_project3.Model.User;
+import com.example.spring_project3.Service.MerchantService;
 import com.example.spring_project3.Service.MerchantStockService;
+import com.example.spring_project3.Service.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +20,8 @@ import java.util.ArrayList;
 public class MerchantStockController {
 
     private final MerchantStockService merchantStockService;
+    private final ProductService productService;
+    private final MerchantService merchantService;
 
     @GetMapping("/get")
     public ResponseEntity getUser(){
@@ -33,9 +36,13 @@ public class MerchantStockController {
             String message = errors.getFieldError().getDefaultMessage();
             return ResponseEntity.status(400).body(new ApiResponse(message));
         }
-        merchantStockService.addMerchantStock(merchantStock);
 
-        return ResponseEntity.status(200).body("Stack Added!");
+        if (checkProduct(merchantStock.getProductID()) && checkMerchant(merchantStock.getMerchantID())){
+            merchantStockService.addMerchantStock(merchantStock);
+            return ResponseEntity.status(200).body("Stack Added!");
+        }
+
+        return ResponseEntity.status(400).body(new ApiResponse("Sorry there is not any product or merchant  with this id"));
     }
 
     @PutMapping("/update/{id}")
@@ -62,6 +69,24 @@ public class MerchantStockController {
         return ResponseEntity.status(400).body("wrong id");
 
     }
+
+    public boolean checkProduct(int productID){
+        for (int i = 0; i < productService.getProducts().size(); i++) {
+            if (productService.getProducts().get(i).getId() == productID){
+                return true;
+            }
+        }
+        return false;
+    }
+    public boolean checkMerchant(int merchantID){
+        for (int i = 0; i < merchantService.getMerchants().size(); i++) {
+            if (merchantService.getMerchants().get(i).getId() == merchantID){
+                return true;
+            }
+        }
+        return false;
+    }
+
 
     @PutMapping("/addProductToMerchantStock/{productID}/{merchantID}/{stock}")
     public ResponseEntity addProductToMerchantStock(@Valid @PathVariable int productID,
